@@ -125,6 +125,10 @@
   --summary-start: 209 55% 16%;
   --summary-end: 206 51% 24%;
 
+  --paper-bg: 45 45% 97%;
+  --paper-line: 210 40% 72%;
+  --paper-margin: 355 70% 62%;
+
   --app-font-sans: 'Inter', sans-serif;
   --app-font-serif: Georgia, serif;
   --app-font-mono: Menlo, monospace;
@@ -216,6 +220,10 @@
   --profit-neg: 0 83% 65%;
   --summary-start: 223 26% 18%;
   --summary-end: 225 28% 14%;
+
+  --paper-bg: 228 22% 15%;
+  --paper-line: 210 35% 46%;
+  --paper-margin: 355 65% 58%;
 }
 
 @layer base {

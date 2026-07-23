@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { format, startOfWeek, addWeeks, subWeeks, eachDayOfInterval, addMonths, subMonths, startOfMonth, endOfMonth } from 'date-fns';
 import { motion, useSpring, useTransform } from 'framer-motion';
 import { Drawer } from 'vaul';
-import { Settings, ChevronLeft, ChevronRight, Share, Trash2, Calendar, TrendingUp, Award, Moon, Sun, Download, Plus } from 'lucide-react';
+import { Settings, ChevronLeft, ChevronRight, Share, Trash2, Calendar, TrendingUp, Award, Moon, Sun, Download, Plus, BookOpen, ArrowLeft } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, ReferenceLine } from 'recharts';
 
 // --- Types ---
@@ -79,6 +79,9 @@ export default function App() {
 
   const [view, setView] = useState<'weekly' | 'monthly'>('weekly');
   const [currentMonth, setCurrentMonth] = useState(() => startOfMonth(new Date()));
+
+  const [showNotebook, setShowNotebook] = useState(false);
+  const [notebookText, setNotebookText] = useLocalStorage<string>('notebook_text', '');
 
   useEffect(() => {
     if (darkMode) {
@@ -655,13 +658,22 @@ export default function App() {
                 </span>
               )}
             </div>
-            <button 
-              onClick={() => { vibrate(10); setDrawerType('menu'); }}
-              className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-muted active:bg-muted transition-colors"
-              data-testid="button-menu"
-            >
-              <Settings size={20} className="text-secondary-foreground" />
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => { vibrate(10); setShowNotebook(true); }}
+                className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-muted active:bg-muted transition-colors"
+                data-testid="button-notebook"
+              >
+                <BookOpen size={20} className="text-secondary-foreground" />
+              </button>
+              <button 
+                onClick={() => { vibrate(10); setDrawerType('menu'); }}
+                className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-muted active:bg-muted transition-colors"
+                data-testid="button-menu"
+              >
+                <Settings size={20} className="text-secondary-foreground" />
+              </button>
+            </div>
           </div>
 
           {/* View Tabs */}
@@ -912,6 +924,54 @@ export default function App() {
           </Drawer.Content>
         </Drawer.Portal>
       </Drawer.Root>
+
+      {/* Notebook Page */}
+      {showNotebook && (
+        <motion.div
+          initial={{ y: '100%' }}
+          animate={{ y: 0 }}
+          transition={{ type: 'tween', duration: 0.28, ease: 'easeOut' }}
+          className="fixed inset-0 z-50 bg-card flex justify-center"
+        >
+          <div className="w-full max-w-[520px] flex flex-col h-[100dvh]">
+            <div className="px-4 pt-4 sm:pt-5 pb-3 flex items-center gap-3 bg-card border-b border-border shadow-sm shrink-0">
+              <button
+                onClick={() => { vibrate(10); setShowNotebook(false); }}
+                className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-muted active:bg-muted transition-colors shrink-0"
+                data-testid="button-close-notebook"
+              >
+                <ArrowLeft size={20} className="text-foreground" />
+              </button>
+              <h2 className="text-lg font-bold text-foreground">کاپی</h2>
+            </div>
+
+            <div
+              className="flex-1 relative overflow-hidden"
+              style={{
+                backgroundColor: 'hsl(var(--paper-bg))',
+                backgroundImage: `repeating-linear-gradient(to bottom, transparent, transparent 31px, hsl(var(--paper-line)) 31px, hsl(var(--paper-line)) 32px), linear-gradient(to left, hsl(var(--paper-bg)), hsl(var(--paper-bg)) 47px, hsl(var(--paper-margin)) 47px, hsl(var(--paper-margin) / 0.6) 48.5px, hsl(var(--paper-bg)) 48.5px)`,
+              }}
+            >
+              <textarea
+                value={notebookText}
+                onChange={(e) => setNotebookText(e.target.value)}
+                dir="rtl"
+                autoFocus
+                placeholder="یہاں اپنا حساب کتاب لکھیں..."
+                className="w-full h-full resize-none outline-none bg-transparent text-foreground placeholder:text-muted-foreground/50"
+                style={{
+                  lineHeight: '32px',
+                  fontSize: '16px',
+                  paddingTop: '6px',
+                  paddingRight: '60px',
+                  paddingLeft: '16px',
+                }}
+                data-testid="textarea-notebook"
+              />
+            </div>
+          </div>
+        </motion.div>
+      )}
     </div>
   );
 }
