@@ -1077,10 +1077,7 @@ export default function App() {
                     className="flex-1 relative overflow-hidden"
                     style={{
                       backgroundColor: 'hsl(var(--paper-bg))',
-                      backgroundImage: `linear-gradient(to bottom, transparent 39px, hsl(var(--paper-margin)) 39px, hsl(var(--paper-margin)) 40.5px, transparent 40.5px), linear-gradient(to left, hsl(var(--paper-bg)), hsl(var(--paper-bg)) 47px, hsl(var(--paper-margin)) 47px, hsl(var(--paper-margin) / 0.6) 48.5px, hsl(var(--paper-bg)) 48.5px), repeating-linear-gradient(to bottom, transparent, transparent 31px, hsl(var(--paper-line)) 31px, hsl(var(--paper-line)) 32px)`,
-                      backgroundSize: '100% 100%, 100% calc(100% - 41px), 100% calc(100% - 41px)',
-                      backgroundPosition: '0 0, 0 41px, 0 41px',
-                      backgroundRepeat: 'no-repeat, no-repeat, no-repeat',
+                      backgroundImage: `linear-gradient(to bottom, hsl(var(--paper-bg)) 0, hsl(var(--paper-bg)) 39px, hsl(var(--paper-margin)) 39px, hsl(var(--paper-margin)) 40.5px, transparent 40.5px, transparent 100%), linear-gradient(to left, hsl(var(--paper-bg)), hsl(var(--paper-bg)) 47px, hsl(var(--paper-margin)) 47px, hsl(var(--paper-margin) / 0.6) 48.5px, hsl(var(--paper-bg)) 48.5px), repeating-linear-gradient(to bottom, transparent, transparent 31px, hsl(var(--paper-line)) 31px, hsl(var(--paper-line)) 32px)`,
                     }}
                   >
                     <textarea
