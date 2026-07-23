@@ -145,6 +145,17 @@ export default function App() {
   };
 
   useEffect(() => {
+    if (showNotebook) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [showNotebook]);
+
+  useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add("dark");
     } else {
@@ -993,8 +1004,9 @@ export default function App() {
           animate={{ y: 0 }}
           transition={{ type: 'tween', duration: 0.28, ease: 'easeOut' }}
           className="fixed inset-0 z-50 bg-card flex justify-center"
+          style={{ fontFamily: "'Lateef', serif" }}
         >
-          <div className="w-full max-w-[520px] flex flex-col h-[100dvh] relative">
+          <div className="w-full max-w-[520px] flex flex-col h-full relative">
             {activeKhataId === null ? (
               <>
                 <div className="px-4 pt-4 sm:pt-5 pb-3 flex items-center gap-3 bg-card border-b border-border shadow-sm shrink-0">
@@ -1065,7 +1077,10 @@ export default function App() {
                     className="flex-1 relative overflow-hidden"
                     style={{
                       backgroundColor: 'hsl(var(--paper-bg))',
-                      backgroundImage: `repeating-linear-gradient(to bottom, transparent, transparent 31px, hsl(var(--paper-line)) 31px, hsl(var(--paper-line)) 32px), linear-gradient(to left, hsl(var(--paper-bg)), hsl(var(--paper-bg)) 47px, hsl(var(--paper-margin)) 47px, hsl(var(--paper-margin) / 0.6) 48.5px, hsl(var(--paper-bg)) 48.5px)`,
+                      backgroundImage: `linear-gradient(to bottom, transparent 39px, hsl(var(--paper-margin)) 39px, hsl(var(--paper-margin)) 40.5px, transparent 40.5px), linear-gradient(to left, hsl(var(--paper-bg)), hsl(var(--paper-bg)) 47px, hsl(var(--paper-margin)) 47px, hsl(var(--paper-margin) / 0.6) 48.5px, hsl(var(--paper-bg)) 48.5px), repeating-linear-gradient(to bottom, transparent, transparent 31px, hsl(var(--paper-line)) 31px, hsl(var(--paper-line)) 32px)`,
+                      backgroundSize: '100% 100%, 100% calc(100% - 41px), 100% calc(100% - 41px)',
+                      backgroundPosition: '0 0, 0 41px, 0 41px',
+                      backgroundRepeat: 'no-repeat, no-repeat, no-repeat',
                     }}
                   >
                     <textarea
@@ -1077,8 +1092,8 @@ export default function App() {
                       className="w-full h-full resize-none outline-none bg-transparent text-foreground placeholder:text-muted-foreground/50"
                       style={{
                         lineHeight: '32px',
-                        fontSize: '16px',
-                        paddingTop: '6px',
+                        fontSize: '19px',
+                        paddingTop: '47px',
                         paddingRight: '60px',
                         paddingLeft: '16px',
                       }}
