@@ -19,9 +19,42 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      .boot-loader {
+        min-height: 100dvh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f4f6fb;
+      }
+      @media (prefers-color-scheme: dark) {
+        .boot-loader { background: #1a1f2e; }
+      }
+      .boot-spinner {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        border: 3px solid hsl(207 62% 47% / 0.18);
+        border-top-color: hsl(207 62% 47%);
+        animation: boot-spin 0.7s linear infinite;
+      }
+      @media (prefers-color-scheme: dark) {
+        .boot-spinner {
+          border-color: hsl(205 71% 59% / 0.18);
+          border-top-color: hsl(205 71% 59%);
+        }
+      }
+      @keyframes boot-spin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="boot-loader">
+        <div class="boot-spinner" role="status" aria-label="Loading"></div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
     <script>
       if ('serviceWorker' in navigator) {
