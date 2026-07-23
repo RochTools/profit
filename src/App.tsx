@@ -14,6 +14,13 @@ interface DayData {
 type WeekData = Record<string, DayData>;
 type AppData = Record<string, WeekData>;
 
+interface KhataPage {
+  id: string;
+  name: string;
+  text: string;
+  createdAt: number;
+}
+
 // --- Hooks ---
 function useLocalStorage<T>(key: string, initialValue: T) {
   const [storedValue, setStoredValue] = useState<T>(() => {
@@ -59,6 +66,8 @@ const vibrate = (pattern: number | number[]) => {
 
 const currencySymbols: Record<string, string> = { PKR: "₨", USD: "$", AED: "د.إ" };
 
+const generateId = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
+
 // --- Main App ---
 export default function App() {
   const [data, setData] = useLocalStorage<AppData>('weekly_profit_v2', {});
@@ -81,7 +90,59 @@ export default function App() {
   const [currentMonth, setCurrentMonth] = useState(() => startOfMonth(new Date()));
 
   const [showNotebook, setShowNotebook] = useState(false);
-  const [notebookText, setNotebookText] = useLocalStorage<string>('notebook_text', '');
+  const [khataPages, setKhataPages] = useLocalStorage<KhataPage[]>('khata_pages', []);
+  const [activeKhataId, setActiveKhataId] = useState<string | null>(null);
+  const [showNameDialog, setShowNameDialog] = useState(false);
+  const [nameInput, setNameInput] = useState('');
+  const [draftText, setDraftText] = useState('');
+
+  const openKhataList = () => {
+    vibrate(10);
+    setActiveKhataId(null);
+    setShowNotebook(true);
+  };
+
+  const closeNotebook = () => {
+    vibrate(10);
+    setShowNotebook(false);
+    setActiveKhataId(null);
+    setShowNameDialog(false);
+  };
+
+  const startNewKhata = () => {
+    vibrate(10);
+    setNameInput('');
+    setShowNameDialog(true);
+  };
+
+  const confirmNewKhataName = () => {
+    const trimmed = nameInput.trim();
+    if (!trimmed) return;
+    const newPage: KhataPage = { id: generateId(), name: trimmed, text: '', createdAt: Date.now() };
+    setKhataPages((prev) => [...prev, newPage]);
+    setActiveKhataId(newPage.id);
+    setDraftText('');
+    setShowNameDialog(false);
+    vibrate(10);
+  };
+
+  const openKhataPage = (page: KhataPage) => {
+    vibrate(10);
+    setDraftText(page.text);
+    setActiveKhataId(page.id);
+  };
+
+  const backToKhataList = () => {
+    vibrate(10);
+    setActiveKhataId(null);
+  };
+
+  const saveKhataPage = () => {
+    if (!activeKhataId) return;
+    vibrate(15);
+    setKhataPages((prev) => prev.map((p) => (p.id === activeKhataId ? { ...p, text: draftText } : p)));
+    setActiveKhataId(null);
+  };
 
   useEffect(() => {
     if (darkMode) {
@@ -660,7 +721,7 @@ export default function App() {
             </div>
             <div className="flex items-center gap-1">
               <button
-                onClick={() => { vibrate(10); setShowNotebook(true); }}
+                onClick={openKhataList}
                 className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-muted active:bg-muted transition-colors"
                 data-testid="button-notebook"
               >
@@ -925,7 +986,7 @@ export default function App() {
         </Drawer.Portal>
       </Drawer.Root>
 
-      {/* Notebook Page */}
+      {/* Khata Notebook */}
       {showNotebook && (
         <motion.div
           initial={{ y: '100%' }}
@@ -933,42 +994,142 @@ export default function App() {
           transition={{ type: 'tween', duration: 0.28, ease: 'easeOut' }}
           className="fixed inset-0 z-50 bg-card flex justify-center"
         >
-          <div className="w-full max-w-[520px] flex flex-col h-[100dvh]">
-            <div className="px-4 pt-4 sm:pt-5 pb-3 flex items-center gap-3 bg-card border-b border-border shadow-sm shrink-0">
-              <button
-                onClick={() => { vibrate(10); setShowNotebook(false); }}
-                className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-muted active:bg-muted transition-colors shrink-0"
-                data-testid="button-close-notebook"
-              >
-                <ArrowLeft size={20} className="text-foreground" />
-              </button>
-              <h2 className="text-lg font-bold text-foreground">کاپی</h2>
-            </div>
+          <div className="w-full max-w-[520px] flex flex-col h-[100dvh] relative">
+            {activeKhataId === null ? (
+              <>
+                <div className="px-4 pt-4 sm:pt-5 pb-3 flex items-center gap-3 bg-card border-b border-border shadow-sm shrink-0">
+                  <button
+                    onClick={closeNotebook}
+                    className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-muted active:bg-muted transition-colors shrink-0"
+                    data-testid="button-close-notebook"
+                  >
+                    <ArrowLeft size={20} className="text-foreground" />
+                  </button>
+                  <h2 className="text-lg font-bold text-foreground flex-1">کھاتہ کتاب</h2>
+                  <button
+                    onClick={startNewKhata}
+                    className="w-10 h-10 rounded-full flex items-center justify-center bg-primary text-primary-foreground hover:opacity-90 active:opacity-80 transition-opacity shrink-0"
+                    data-testid="button-new-khata"
+                  >
+                    <Plus size={20} />
+                  </button>
+                </div>
 
-            <div
-              className="flex-1 relative overflow-hidden"
-              style={{
-                backgroundColor: 'hsl(var(--paper-bg))',
-                backgroundImage: `repeating-linear-gradient(to bottom, transparent, transparent 31px, hsl(var(--paper-line)) 31px, hsl(var(--paper-line)) 32px), linear-gradient(to left, hsl(var(--paper-bg)), hsl(var(--paper-bg)) 47px, hsl(var(--paper-margin)) 47px, hsl(var(--paper-margin) / 0.6) 48.5px, hsl(var(--paper-bg)) 48.5px)`,
-              }}
-            >
-              <textarea
-                value={notebookText}
-                onChange={(e) => setNotebookText(e.target.value)}
-                dir="rtl"
-                autoFocus
-                placeholder="یہاں اپنا حساب کتاب لکھیں..."
-                className="w-full h-full resize-none outline-none bg-transparent text-foreground placeholder:text-muted-foreground/50"
-                style={{
-                  lineHeight: '32px',
-                  fontSize: '16px',
-                  paddingTop: '6px',
-                  paddingRight: '60px',
-                  paddingLeft: '16px',
-                }}
-                data-testid="textarea-notebook"
-              />
-            </div>
+                <div className="flex-1 overflow-y-auto px-4 py-3">
+                  {khataPages.length === 0 ? (
+                    <div className="h-full flex flex-col items-center justify-center text-center gap-2 py-16">
+                      <BookOpen size={36} className="text-muted-foreground/40" />
+                      <p className="text-sm text-muted-foreground">ابھی کوئی کھاتا موجود نہیں</p>
+                      <p className="text-xs text-muted-foreground/70">نیا کھاتا بنانے کے لیے اوپر + دبائیں</p>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      {khataPages.map((page) => (
+                        <button
+                          key={page.id}
+                          onClick={() => openKhataPage(page)}
+                          className="w-full text-right px-4 py-3.5 rounded-2xl border border-border bg-background hover:bg-muted active:bg-muted transition-colors flex items-center justify-between gap-3"
+                          data-testid={`button-khata-${page.id}`}
+                        >
+                          <span className="font-semibold text-foreground">{page.name}</span>
+                          <span className="text-xs text-muted-foreground shrink-0">{format(new Date(page.createdAt), 'd MMM')}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (() => {
+              const activePage = khataPages.find((p) => p.id === activeKhataId);
+              return (
+                <>
+                  <div className="px-4 pt-4 sm:pt-5 pb-3 flex items-center gap-3 bg-card border-b border-border shadow-sm shrink-0">
+                    <button
+                      onClick={backToKhataList}
+                      className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-muted active:bg-muted transition-colors shrink-0"
+                      data-testid="button-back-khata-list"
+                    >
+                      <ArrowLeft size={20} className="text-foreground" />
+                    </button>
+                    <h2 className="text-lg font-bold text-foreground flex-1 truncate">{activePage?.name}</h2>
+                    <button
+                      onClick={saveKhataPage}
+                      className="px-4 h-10 rounded-full flex items-center justify-center bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 active:opacity-80 transition-opacity shrink-0"
+                      data-testid="button-save-khata"
+                    >
+                      محفوظ کریں
+                    </button>
+                  </div>
+
+                  <div
+                    className="flex-1 relative overflow-hidden"
+                    style={{
+                      backgroundColor: 'hsl(var(--paper-bg))',
+                      backgroundImage: `repeating-linear-gradient(to bottom, transparent, transparent 31px, hsl(var(--paper-line)) 31px, hsl(var(--paper-line)) 32px), linear-gradient(to left, hsl(var(--paper-bg)), hsl(var(--paper-bg)) 47px, hsl(var(--paper-margin)) 47px, hsl(var(--paper-margin) / 0.6) 48.5px, hsl(var(--paper-bg)) 48.5px)`,
+                    }}
+                  >
+                    <textarea
+                      value={draftText}
+                      onChange={(e) => setDraftText(e.target.value)}
+                      dir="rtl"
+                      autoFocus
+                      placeholder="یہاں حساب کتاب لکھیں..."
+                      className="w-full h-full resize-none outline-none bg-transparent text-foreground placeholder:text-muted-foreground/50"
+                      style={{
+                        lineHeight: '32px',
+                        fontSize: '16px',
+                        paddingTop: '6px',
+                        paddingRight: '60px',
+                        paddingLeft: '16px',
+                      }}
+                      data-testid="textarea-khata"
+                    />
+                  </div>
+                </>
+              );
+            })()}
+
+            {showNameDialog && (
+              <div
+                className="absolute inset-0 z-10 bg-black/40 flex items-center justify-center px-6"
+                onClick={() => setShowNameDialog(false)}
+              >
+                <div
+                  className="w-full max-w-[360px] bg-card rounded-2xl border border-border shadow-lg p-5"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <h3 className="text-base font-bold text-foreground mb-3">کھاتے والے کا نام</h3>
+                  <input
+                    type="text"
+                    value={nameInput}
+                    onChange={(e) => setNameInput(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') confirmNewKhataName(); }}
+                    dir="rtl"
+                    autoFocus
+                    placeholder="نام لکھیں"
+                    className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-foreground outline-none focus:border-primary transition-colors mb-4"
+                    data-testid="input-khata-name"
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setShowNameDialog(false)}
+                      className="flex-1 py-2.5 rounded-xl border border-border text-foreground font-medium hover:bg-muted transition-colors"
+                      data-testid="button-cancel-khata-name"
+                    >
+                      منسوخ
+                    </button>
+                    <button
+                      onClick={confirmNewKhataName}
+                      disabled={!nameInput.trim()}
+                      className="flex-1 py-2.5 rounded-xl bg-primary text-primary-foreground font-medium hover:opacity-90 active:opacity-80 transition-opacity disabled:opacity-40 disabled:pointer-events-none"
+                      data-testid="button-confirm-khata-name"
+                    >
+                      اگلا
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </motion.div>
       )}
