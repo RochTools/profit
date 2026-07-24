@@ -1075,18 +1075,33 @@ export default function App() {
 
                   <div
                     className="flex-1 relative overflow-hidden"
-                    style={{
-                      backgroundColor: 'hsl(var(--paper-bg))',
-                      backgroundImage: `linear-gradient(to bottom, hsl(var(--paper-bg)) 0, hsl(var(--paper-bg)) 39px, hsl(var(--paper-margin)) 39px, hsl(var(--paper-margin)) 40.5px, transparent 40.5px, transparent 100%), linear-gradient(to left, hsl(var(--paper-bg)), hsl(var(--paper-bg)) 47px, hsl(var(--paper-margin)) 47px, hsl(var(--paper-margin) / 0.6) 48.5px, hsl(var(--paper-bg)) 48.5px), repeating-linear-gradient(to bottom, transparent, transparent 31px, hsl(var(--paper-line)) 31px, hsl(var(--paper-line)) 32px)`,
-                    }}
+                    style={{ backgroundColor: 'hsl(var(--paper-bg))' }}
                   >
+                    {/* header strip divider */}
+                    <div
+                      className="absolute inset-x-0"
+                      style={{ top: '39px', height: '1.5px', backgroundColor: 'hsl(var(--paper-margin))' }}
+                    />
+                    {/* repeating horizontal rule lines, below the header strip */}
+                    <div
+                      className="absolute inset-x-0 bottom-0"
+                      style={{
+                        top: '40.5px',
+                        backgroundImage: `repeating-linear-gradient(to bottom, transparent, transparent 31px, hsl(var(--paper-line)) 31px, hsl(var(--paper-line)) 32px)`,
+                      }}
+                    />
+                    {/* vertical margin line, below the header strip */}
+                    <div
+                      className="absolute bottom-0"
+                      style={{ top: '40.5px', right: '48px', width: '1.5px', backgroundColor: 'hsl(var(--paper-margin) / 0.7)' }}
+                    />
                     <textarea
                       value={draftText}
                       onChange={(e) => setDraftText(e.target.value)}
                       dir="rtl"
                       autoFocus
                       placeholder="یہاں حساب کتاب لکھیں..."
-                      className="w-full h-full resize-none outline-none bg-transparent text-foreground placeholder:text-muted-foreground/50"
+                      className="absolute inset-0 w-full h-full resize-none outline-none bg-transparent text-foreground placeholder:text-muted-foreground/50"
                       style={{
                         lineHeight: '32px',
                         fontSize: '19px',
